@@ -5,6 +5,6 @@ public class Cliente
     public string Email { get; set; }
     public string NumeroContato { get; set; }
     public DateTime DataNascimento { get; set; }
-    public List<Pedido> Pedidos { get; set; } = new List<Pedido>();
+    public List<Pedido>? Pedidos { get; set; } = new List<Pedido>();
 }
 
