@@ -13,49 +13,103 @@ public class PedidoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Pedido>>> GetPedidos()
+    public async Task<ActionResult<IEnumerable<PedidoDTO>>> GetPedidos()
     {
-        return await _context.Pedidos.ToListAsync();
+        var pedidos = await _context.Pedidos
+            .Include(p => p.PedidoProdutos)
+            .Select(p => new PedidoDTO
+            {
+                Id = p.Id,
+                ClienteId = p.ClienteId,
+                Status = p.Status,
+                PedidoProdutos = p.PedidoProdutos.Select(pp => new PedidoProdutoDTO
+                {
+                    PedidoId = pp.PedidoId,
+                    ProdutoId = pp.ProdutoId,
+                    Quantidade = pp.Quantidade
+                }).ToList()
+            })
+            .ToListAsync();
+
+        return Ok(pedidos);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Pedido>> GetPedido(int id)
+    public async Task<ActionResult<PedidoDTO>> GetPedido(int id)
     {
-        var pedido = await _context.Pedidos.FindAsync(id);
+        var pedido = await _context.Pedidos
+            .Include(p => p.PedidoProdutos)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
         if (pedido == null)
             return NotFound();
 
-        return pedido;
+        var pedidoDTO = new PedidoDTO
+        {
+            Id = pedido.Id,
+            ClienteId = pedido.ClienteId,
+            Status = pedido.Status,
+            PedidoProdutos = pedido.PedidoProdutos.Select(pp => new PedidoProdutoDTO
+            {
+                PedidoId = pp.PedidoId,
+                ProdutoId = pp.ProdutoId,
+                Quantidade = pp.Quantidade
+            }).ToList()
+        };
+
+        return Ok(pedidoDTO);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Pedido>> CreatePedido(Pedido pedido)
+    public async Task<ActionResult<PedidoDTO>> CreatePedido(PedidoCreateDTO pedidoCreateDTO)
     {
+        var pedido = new Pedido
+        {
+            ClienteId = pedidoCreateDTO.ClienteId,
+            Status = pedidoCreateDTO.Status,
+            PedidoProdutos = pedidoCreateDTO.PedidoProdutos.Select(pp => new PedidoProduto
+            {
+                ProdutoId = pp.ProdutoId,
+                Quantidade = pp.Quantidade
+            }).ToList()
+        };
+
         _context.Pedidos.Add(pedido);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetPedido), new { id = pedido.Id }, pedido);
+        var pedidoDTO = new PedidoDTO
+        {
+            Id = pedido.Id,
+            ClienteId = pedido.ClienteId,
+            Status = pedido.Status,
+            PedidoProdutos = pedido.PedidoProdutos.Select(pp => new PedidoProdutoDTO
+            {
+                PedidoId = pp.PedidoId,
+                ProdutoId = pp.ProdutoId,
+                Quantidade = pp.Quantidade
+            }).ToList()
+        };
+
+        return CreatedAtAction(nameof(GetPedido), new { id = pedido.Id }, pedidoDTO);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePedido(int id, Pedido pedido)
+    public async Task<IActionResult> UpdatePedido(int id, PedidoCreateDTO pedidoUpdateDTO)
     {
-        if (id != pedido.Id)
-            return BadRequest();
+        var pedido = await _context.Pedidos.Include(p => p.PedidoProdutos).FirstOrDefaultAsync(p => p.Id == id);
+        if (pedido == null)
+            return NotFound();
+
+        pedido.ClienteId = pedidoUpdateDTO.ClienteId;
+        pedido.Status = pedidoUpdateDTO.Status;
+        pedido.PedidoProdutos = pedidoUpdateDTO.PedidoProdutos.Select(pp => new PedidoProduto
+        {
+            ProdutoId = pp.ProdutoId,
+            Quantidade = pp.Quantidade
+        }).ToList();
 
         _context.Entry(pedido).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.Pedidos.Any(e => e.Id == id))
-                return NotFound();
-            throw;
-        }
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }

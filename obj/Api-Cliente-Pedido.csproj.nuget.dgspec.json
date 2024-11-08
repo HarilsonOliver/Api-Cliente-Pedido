@@ -1,25 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\CPDS\\Documents\\Projects\\Residencia\\API-Entity-Framework-Swagger\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj": {}
+    "C:\\Users\\Harilson\\Documents\\Projetos\\residencia\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj": {}
   },
   "projects": {
-    "C:\\Users\\CPDS\\Documents\\Projects\\Residencia\\API-Entity-Framework-Swagger\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj": {
+    "C:\\Users\\Harilson\\Documents\\Projetos\\residencia\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\CPDS\\Documents\\Projects\\Residencia\\API-Entity-Framework-Swagger\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj",
+        "projectUniqueName": "C:\\Users\\Harilson\\Documents\\Projetos\\residencia\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj",
         "projectName": "Api-Cliente-Pedido",
-        "projectPath": "C:\\Users\\CPDS\\Documents\\Projects\\Residencia\\API-Entity-Framework-Swagger\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj",
-        "packagesPath": "C:\\Users\\CPDS\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\CPDS\\Documents\\Projects\\Residencia\\API-Entity-Framework-Swagger\\Api-Cliente-Pedido\\obj\\",
+        "projectPath": "C:\\Users\\Harilson\\Documents\\Projetos\\residencia\\Api-Cliente-Pedido\\Api-Cliente-Pedido.csproj",
+        "packagesPath": "C:\\Users\\Harilson\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Harilson\\Documents\\Projetos\\residencia\\Api-Cliente-Pedido\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\CPDS\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Harilson\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

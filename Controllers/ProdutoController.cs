@@ -13,49 +13,77 @@ public class ProdutoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Produto>>> GetProdutos()
+    public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutos()
     {
-        return await _context.Produtos.ToListAsync();
+        var produtos = await _context.Produtos
+            .Select(p => new ProdutoDTO
+            {
+                Id = p.Id,
+                Nome = p.Nome,
+                Tipo = p.Tipo,
+                Valor = p.Valor
+            })
+            .ToListAsync();
+
+        return Ok(produtos);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Produto>> GetProduto(int id)
+    public async Task<ActionResult<ProdutoDTO>> GetProduto(int id)
     {
         var produto = await _context.Produtos.FindAsync(id);
 
         if (produto == null)
             return NotFound();
 
-        return produto;
+        var produtoDTO = new ProdutoDTO
+        {
+            Id = produto.Id,
+            Nome = produto.Nome,
+            Tipo = produto.Tipo,
+            Valor = produto.Valor
+        };
+
+        return Ok(produtoDTO);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Produto>> CreateProduto(Produto produto)
+    public async Task<ActionResult<ProdutoDTO>> CreateProduto(ProdutoCreateDTO produtoCreateDTO)
     {
+        var produto = new Produto
+        {
+            Nome = produtoCreateDTO.Nome,
+            Tipo = produtoCreateDTO.Tipo,
+            Valor = produtoCreateDTO.Valor
+        };
+
         _context.Produtos.Add(produto);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetProduto), new { id = produto.Id }, produto);
+        var produtoDTO = new ProdutoDTO
+        {
+            Id = produto.Id,
+            Nome = produto.Nome,
+            Tipo = produto.Tipo,
+            Valor = produto.Valor
+        };
+
+        return CreatedAtAction(nameof(GetProduto), new { id = produto.Id }, produtoDTO);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProduto(int id, Produto produto)
+    public async Task<IActionResult> UpdateProduto(int id, ProdutoCreateDTO produtoUpdateDTO)
     {
-        if (id != produto.Id)
-            return BadRequest();
+        var produto = await _context.Produtos.FindAsync(id);
+        if (produto == null)
+            return NotFound();
+
+        produto.Nome = produtoUpdateDTO.Nome;
+        produto.Tipo = produtoUpdateDTO.Tipo;
+        produto.Valor = produtoUpdateDTO.Valor;
 
         _context.Entry(produto).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.Produtos.Any(e => e.Id == id))
-                return NotFound();
-            throw;
-        }
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }

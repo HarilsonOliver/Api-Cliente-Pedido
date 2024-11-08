@@ -13,49 +13,82 @@ public class ClienteController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
+    public async Task<ActionResult<IEnumerable<ClienteDTO>>> GetClientes()
     {
-        return await _context.Clientes.ToListAsync();
+        var clientes = await _context.Clientes
+            .Select(c => new ClienteDTO
+            {
+                Id = c.Id,
+                Nome = c.Nome,
+                Email = c.Email,
+                NumeroContato = c.NumeroContato,
+                DataNascimento = c.DataNascimento
+            })
+            .ToListAsync();
+
+        return Ok(clientes);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Cliente>> GetCliente(int id)
+    public async Task<ActionResult<ClienteDTO>> GetCliente(int id)
     {
         var cliente = await _context.Clientes.FindAsync(id);
 
         if (cliente == null)
             return NotFound();
 
-        return cliente;
+        var clienteDTO = new ClienteDTO
+        {
+            Id = cliente.Id,
+            Nome = cliente.Nome,
+            Email = cliente.Email,
+            NumeroContato = cliente.NumeroContato,
+            DataNascimento = cliente.DataNascimento
+        };
+
+        return Ok(clienteDTO);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Cliente>> CreateCliente(Cliente cliente)
+    public async Task<ActionResult<ClienteDTO>> CreateCliente(ClienteCreateDTO clienteCreateDTO)
     {
+        var cliente = new Cliente
+        {
+            Nome = clienteCreateDTO.Nome,
+            Email = clienteCreateDTO.Email,
+            NumeroContato = clienteCreateDTO.NumeroContato,
+            DataNascimento = clienteCreateDTO.DataNascimento
+        };
+
         _context.Clientes.Add(cliente);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetCliente), new { id = cliente.Id }, cliente);
+        var clienteDTO = new ClienteDTO
+        {
+            Id = cliente.Id,
+            Nome = cliente.Nome,
+            Email = cliente.Email,
+            NumeroContato = cliente.NumeroContato,
+            DataNascimento = cliente.DataNascimento
+        };
+
+        return CreatedAtAction(nameof(GetCliente), new { id = cliente.Id }, clienteDTO);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCliente(int id, Cliente cliente)
+    public async Task<IActionResult> UpdateCliente(int id, ClienteCreateDTO clienteUpdateDTO)
     {
-        if (id != cliente.Id)
-            return BadRequest();
+        var cliente = await _context.Clientes.FindAsync(id);
+        if (cliente == null)
+            return NotFound();
+
+        cliente.Nome = clienteUpdateDTO.Nome;
+        cliente.Email = clienteUpdateDTO.Email;
+        cliente.NumeroContato = clienteUpdateDTO.NumeroContato;
+        cliente.DataNascimento = clienteUpdateDTO.DataNascimento;
 
         _context.Entry(cliente).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.Clientes.Any(e => e.Id == id))
-                return NotFound();
-            throw;
-        }
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
